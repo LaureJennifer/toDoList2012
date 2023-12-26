@@ -1,0 +1,88 @@
+﻿.container {
+    margin-right: 30px;
+}
+
+.skill {
+    width: 200px;
+    height: 200px;
+    position: relative;
+}
+
+.outer {
+    background-color: aliceblue;
+    height: 200px;
+    width: 200px;
+    border-radius: 50%;
+    padding: 20px;
+    box-shadow: 6px 6px 10px -1px rgba(0,0,0,0.15), -6px -6px 10px -1px rgba(255,255,255,0.7);
+}
+
+.inner {
+    height: 160px;
+    width: 160px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 4px 4px 6px -1px rgba(0,0,0,0.2), inset -4px -4px 6px -1px rgba(255,255,255,0.7), -0.5px -0.5px 0px rgba(2555,255,255,1), 0.5px 0.5px 0px rgba(0,0,0,0.15), 0px 12px 10px -10px rgba(0,0,0,0.05);
+}
+
+#speed {
+    font-weight: 600;
+    color: #555;
+    text-align: center;
+}
+
+#accuracy {
+    font-weight: 600;
+    color: #555;
+    text-align: center;
+}
+
+#score {
+    font-weight: 600;
+    color: #555;
+    font-size: larger;
+    text-align: center;
+}
+
+.skillscore {
+    margin-right: 50px;
+    width: 240px;
+    height: 240px;
+    position: relative;
+}
+
+.outerscore {
+    background-color: aliceblue;
+    height: 240px;
+    width: 240px;
+    border-radius: 50%;
+    padding: 20px;
+    box-shadow: 6px 6px 10px -1px rgba(0,0,0,0.15), -6px -6px 10px -1px rgba(255,255,255,0.7);
+}
+
+.innerscore {
+    height: 200px;
+    width: 200px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 4px 4px 6px -1px rgba(0,0,0,0.2), inset -4px -4px 6px -1px rgba(255,255,255,0.7), -0.5px -0.5px 0px rgba(2555,255,255,1), 0.5px 0.5px 0px rgba(0,0,0,0.15), 0px 12px 10px -10px rgba(0,0,0,0.05);
+}
+
+circle {
+    fill: none;
+    stroke: url(#GradientColor);
+    stroke-width: 20px;
+    stroke-dasharray: 472;
+    stroke-dashoffset: 472;
+    animation: anim 1s linear forwards;
+}
+
+svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+}

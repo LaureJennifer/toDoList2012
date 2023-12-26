@@ -1,0 +1,156 @@
+﻿@page "/tasks"
+@using global::TodoList.Models
+@using global::TodoList.Models.Pagination
+@using toDoList2012.Services
+@using toDoList2012.Components
+
+@inject ISnackbar _snackbar;
+
+@if (_lstTasks==null)
+{
+    <MudText>bị null</MudText>
+}
+else
+{
+    <EditForm Model="@taskListSearch" OnSubmit=@SearchByTextFilled>
+        <div class="row">
+            <div class="col">
+                <label>Name</label>
+                <InputText class="form-control" @bind-Value="taskListSearch.Name"></InputText>
+            </div>
+            <button type="submit" class="btn btn-primary">Search</button>
+        </div>
+    </EditForm>
+    <MudButton Color="Color.Primary"  OnClick="()=>NavigateToTaskCreate()">Thêm mới</MudButton>
+
+    <MudText Typo="Typo.h4" Color="Color.Success">List Task</MudText>
+
+    <MudTable Items="@_lstTasks" Hover="true" Striped="true" FixedHeader="true">
+        <HeaderContent>
+            <MudTh>STT</MudTh>
+            <MudTh>Name</MudTh>
+            <MudTh class="text-center">Created Date</MudTh>
+            <MudTh class="text-center">Priority</MudTh>
+            <MudTh class="text-center">Status</MudTh>
+            <MudTh class="text-center">Actions</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="">@(_lstTasks.IndexOf(context) + 1)</MudTd>
+            <MudTd DataLabel=""><MudLink OnClick="()=>OpenNameTaskPopUp(context.Id)">@context.Name</MudLink></MudTd>
+                <MudTd DataLabel="" class="text-center">@context.CreatedDate.ToString("hh:mm tt dd/MM/yyyy")</MudTd>
+                <MudTd DataLabel="" Class="text-center">@context.Priority</MudTd>
+                <MudTd DataLabel="" Class="text-center">@context.Status</MudTd>
+                <MudTd DataLabel="">
+                    <MudGrid>
+                        <MudItem xs="4" md="4" />
+                        <MudItem xs="4" md="4">
+                            <MudGrid>
+                                <MudItem xs="4" md="4">
+                                    <MudIconButton Icon="@Icons.Material.Filled.Info" Color="Color.Warning" OnClick="()=>NavigateToDetails(context.Id.ToString())"></MudIconButton>
+                                </MudItem>
+                                <MudItem xs="4" md="4">
+                                    <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Success" OnClick="()=>NavigateToTaskUpdate(context.Id.ToString())"></MudIconButton>
+                                </MudItem>
+                                <MudItem xs="4" md="4">
+                                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="()=>OnDeleteClicked(context.Id.ToString())"></MudIconButton>
+                                </MudItem>
+                            </MudGrid>
+                        </MudItem>
+                        <MudItem xs="4" md="4" />
+                    </MudGrid>
+
+                </MudTd>
+            </RowTemplate>
+            <PagerContent>
+                <MudGrid Class="mb-3">
+                    <MudItem xs="12" Class="d-flex justify-center mt-3">
+                        <MudPagination BoundaryCount="1" ShowPreviousButton="true" ShowNextButton="true" Count="(_paginationResponse.HasNext ? (_paginationRequest.PageNumber + 1) : _paginationRequest.PageNumber)" SelectedChanged="OnSelectPagination" />
+                    </MudItem>
+                </MudGrid>
+            </PagerContent>
+        </MudTable>
+
+    <CircularChart></CircularChart>
+    <MudMessageBox @ref="_mboxDelete" Title="Xác nhận" CancelText="Hủy">
+        <MessageContent>
+            Xác nhận xóa thí sinh khỏi vòng thi!
+        </MessageContent>
+        <YesButton>
+            <MudButton Color="Color.Primary" OnClick="OnConfirmDelete">
+                Xác nhận
+            </MudButton>
+        </YesButton>
+    </MudMessageBox>
+}
+<NameTasks @ref="nameTasksDialog" CloseEventCallbak="NameTaskSuccess"></NameTasks>
+
+@code {
+    [Inject] ITaskApiClient taskApiClient { set; get; }
+    [Inject] NavigationManager _navigationManager { get; set; }
+
+    TaskDto taskDelete { get; set; } = new();
+
+    MudMessageBox _mboxDelete { get; set; } = null!;
+
+    public MetaData metadata { get; set; } = new();
+
+    List<TaskDto> _lstTasks;
+    TaskListSearch taskListSearch = new();
+
+    protected NameTasks nameTasksDialog { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetTaskList();
+    }
+    void NavigateToDetails(string taskId)
+    {
+        _navigationManager.NavigateTo($"/details/{taskId}");
+    }
+    void NavigateToTaskCreate()
+    {
+        _navigationManager.NavigateTo("/taskcreate");
+    }
+    void NavigateToTaskUpdate(string taskId)
+    {
+        _navigationManager.NavigateTo($"/taskupdate/{taskId}");
+    }
+    private async Task SearchByTextFilled(EditContext context)
+    {
+        await GetTaskList();
+    }
+    private async Task OnDeleteClicked(string id)
+    {
+        taskDelete = await taskApiClient.GetTaskDetails(id);
+        bool? result = await _mboxDelete.Show();
+
+        StateHasChanged();
+
+    }
+    private async Task OnConfirmDelete()
+    {
+        await taskApiClient.DeleteTask(taskDelete.Id);
+        await GetTaskList();
+        _snackbar.Add("Xóa thành công", Severity.Success);
+        StateHasChanged();
+    }
+
+    public void OpenNameTaskPopUp(Guid id)
+    {
+        nameTasksDialog.Show(id);
+    }
+    public async Task NameTaskSuccess(bool result)
+    {
+        if (result)
+        {
+           await GetTaskList();
+        }
+    }
+    private async Task GetTaskList()
+    {
+        var pagingRespone = await taskApiClient.GetTasks(taskListSearch);
+        _lstTasks = pagingRespone.Items;
+        metadata = pagingRespone.MetaData;
+    }
+}
+

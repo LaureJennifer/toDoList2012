@@ -1,0 +1,48 @@
+﻿@page "/taskcreate"
+@using global::TodoList.Models
+@using todoList.Models.Enums
+@using toDoList2012.Services
+<h3>TaskCreate</h3>
+
+@inject ISnackbar _snackbar;
+@inject ITaskApiClient _taskApiClient;
+@inject NavigationManager _navigate;
+
+<EditForm Model="@taskCreateRequest" OnValidSubmit="OnValidSubmit">
+        <MudCard>
+            <MudCardContent>
+                <MudTextField Label="Name" @bind-Value="taskCreateRequest.Name" />
+                <MudSelect T="string" Label="Priority" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter">
+                @foreach (var priority in Enum.GetNames(typeof(Priority)))
+                {
+                    <MudSelectItem T="string" Value="priority"></MudSelectItem>
+                }
+            </MudSelect>
+            <MudSelect T="string" Label="Status" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter">
+                @foreach (var status in Enum.GetNames(typeof(Status)))
+                {
+                    <MudSelectItem T="string" Value="status"></MudSelectItem>
+                }
+            </MudSelect>
+             </MudCardContent>
+            <MudCardActions>
+                <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Success" Class="ml-auto">Create</MudButton>
+            </MudCardActions>
+        </MudCard>
+</EditForm>
+
+@code {
+    TaskCreateRequest taskCreateRequest = new();
+
+    private async Task OnValidSubmit(EditContext context)
+    {
+        var result = await _taskApiClient.CreateTask(taskCreateRequest);
+        if (result)
+        {
+            _snackbar.Add("thêm thành công", Severity.Success);
+            _navigate.NavigateTo("/tasks");
+        }
+        StateHasChanged();
+    }
+
+}

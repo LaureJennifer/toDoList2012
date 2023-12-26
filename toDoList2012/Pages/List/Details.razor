@@ -1,0 +1,53 @@
+﻿@page "/details/{taskId}"
+
+@using global::TodoList.Models
+@using toDoList2012.Services
+
+@inject ITaskApiClient taskApiClient;
+@if (_taskDetailsDto == null)
+{
+    <MudText>bị null</MudText>
+
+}
+else
+{
+    <MudSimpleTable>
+        <MudTr>
+            <MudTd>Mã</MudTd>
+            <MudTd>@_taskDetailsDto.Id</MudTd>
+            </MudTr>
+
+        <MudTr>
+            <MudTd>Tên</MudTd>
+            <MudTd>@_taskDetailsDto.Name</MudTd>
+            </MudTr>
+            <MudTr>
+                <MudTd>Ngày tạo</MudTd>
+                <MudTd>@_taskDetailsDto.CreatedDate</MudTd>
+            </MudTr>
+
+            <MudTr>
+                <MudTd>Trạng thái</MudTd>
+                <MudTd>@_taskDetailsDto.Status</MudTd>
+            </MudTr>
+            <MudTr>
+                <MudTd>Độ ưu tiên </MudTd>
+                <MudTd>@_taskDetailsDto.Priority</MudTd>
+            </MudTr>
+            <MudTr>
+                <MudTd>Mã User</MudTd>
+                <MudTd>@_taskDetailsDto.AssigneeId</MudTd>
+            </MudTr>
+        </MudSimpleTable>
+}
+
+@code {
+    [Parameter] public string taskId{ get; set; }
+
+    private TaskDto _taskDetailsDto { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _taskDetailsDto = await taskApiClient.GetTaskDetails(taskId);
+    }
+}
