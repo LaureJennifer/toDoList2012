@@ -1,0 +1,59 @@
+﻿@page "/taskupdate/{taskId}"
+
+@using global::TodoList.Models
+@using todoList.Models.Enums
+@using toDoList2712.Services
+<h3>TaskCreate</h3>
+
+@inject ISnackbar _snackbar;
+@inject ITaskApiClient _taskApiClient;
+@inject NavigationManager _navigate;
+<MudText Typo="Typo.h4" Color="Color.Primary" Class="mb-5">Task Id : @taskId</MudText>
+
+    <EditForm Model="taskUpdateRequest" OnValidSubmit="OnSubmit">
+    <MudCard>
+        <MudCardContent>
+                <MudTextField Label="Name" @bind-Value="taskUpdateRequest.Name" />
+                <MudSelect T="Priority" Label="Priority" Variant="Variant.Outlined" @bind-Value="taskUpdateRequest.Priority" AnchorOrigin="Origin.BottomCenter">
+                    @foreach (Priority priority in Enum.GetValues(typeof(Priority)))
+                {
+                    <MudSelectItem T="Priority" Value="priority">@priority.ToString()</MudSelectItem>
+                }
+            </MudSelect>
+            <MudSelect T="Status" Label="Status" Variant="Variant.Outlined" @bind-Value="taskUpdateRequest.Status" AnchorOrigin="Origin.BottomCenter">
+                @foreach (Status status in Enum.GetValues(typeof(Status)))
+                {
+                    <MudSelectItem T="Status" Value="status">@status.ToString()</MudSelectItem>
+                }
+            </MudSelect>
+        </MudCardContent>
+        <MudCardActions>
+            <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Success" Class="ml-auto">Update</MudButton>
+        </MudCardActions>
+    </MudCard>
+</EditForm>
+
+@code {
+    [Parameter] 
+    public string taskId { set; get; }
+
+    TaskUpdateRequest taskUpdateRequest = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var taskDto = await _taskApiClient.GetTaskDetails(taskId);
+    }
+    private async Task OnSubmit()
+    {
+        var result = await _taskApiClient.UpdateTask(Guid.Parse(taskId), taskUpdateRequest);
+
+        if (result)
+        {
+            _snackbar.Add("Cập nhật thành công", Severity.Success);
+            _navigate.NavigateTo("/tasks");
+        }
+        StateHasChanged();
+    }
+    
+
+}

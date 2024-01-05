@@ -55,10 +55,10 @@ namespace todoListApi.Repositories
                 query = query.Where(x => x.Name.ToLower().Contains(taskListSearch.Name.ToLower()));
             }
             var count = await query.CountAsync();
-            var data = await query.OrderByDescending(x => x.CreatedDate)
-                .Skip((taskListSearch.PageNumber - 1) * taskListSearch.PageSize)
+            var data =  await query.OrderByDescending(x => x.CreatedDate)
+                .Skip((taskListSearch.PageNumber - 1)*taskListSearch.PageSize)
                 .Take(taskListSearch.PageSize).ToListAsync();
-            return new PagedList<Entities.Task>(data, count, taskListSearch.PageNumber, taskListSearch.PageSize);
+            return new PagedList<Entities.Task>(data,count,taskListSearch.PageNumber,taskListSearch.PageSize);
         }
     }
 }

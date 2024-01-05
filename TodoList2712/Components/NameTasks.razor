@@ -1,0 +1,107 @@
+﻿
+@using TodoList.Models;
+@using TodoList.Models.Pagination
+@using toDoList2712.Services
+
+@inject ITaskApiClient taskApiClient;
+@inject ISnackbar _snackbar;
+
+@if (ShowDialog && lstTaskDto != null)
+{
+    <div class="modal fade show d-block" id="assignModel" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <EditForm Model="Model" OnSubmit="HandleNameTaskSubmit">
+                <div class="modal-content">
+
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Change name to task</h5>
+                        <button type="button" class="close" data-dismiss="modal" @onclick="()=>Hide()" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+
+                        <div class="form-group">
+                            <label for="recipient-name" class="col-form-label">Recipient:</label>
+                            <InputSelect class="form-control" @bind-Value="Model.Name">
+                                <option value="Not define">Select an name for Task</option>
+                                @foreach (var assignee in lstTaskDto)
+                                {
+                                    <option value="@assignee.Name">@assignee.Name</option>
+                                }
+                            </InputSelect>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @onclick="()=>Hide()" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Assign</button>
+                    </div>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+}
+
+@code {
+    protected bool ShowDialog { get; set; }
+
+    private NameTaskRequest Model { set; get; } = new();
+    private List<TaskDto> lstTaskDto;
+    private Guid TaskId;
+    public MetaData metaData { get; set; } = new();
+    TaskListSearch taskListSearch = new();
+
+    [Parameter]
+    public EventCallback<bool> CloseEventCallbak { get; set; }
+
+    protected async override Task OnInitializedAsync()
+    {
+        await GetTaskList();
+    }
+    private async Task GetTaskList()
+    {
+        var pagingRespone = await taskApiClient.GetTasks(taskListSearch);
+        lstTaskDto = pagingRespone.Items;
+        metaData = pagingRespone.MetaData;
+    }
+    protected async override Task OnParametersSetAsync()
+    {
+        if (TaskId != Guid.Empty)
+        {
+            var task = await taskApiClient.GetTaskDetails(TaskId.ToString());
+            Model.Name = task.Name;
+        }
+    }
+
+    public void Show(Guid taskId)
+    {
+        ShowDialog = true;
+        TaskId = taskId;
+        StateHasChanged();
+    }
+
+    private void Hide()
+    {
+        ShowDialog = false;
+        StateHasChanged();
+    }
+
+    protected async Task HandleNameTaskSubmit()
+    {
+        var result = await taskApiClient.NameTask(TaskId, Model);
+        if (result)
+        {
+            _snackbar.Add("Name task success", Severity.Success);
+
+            ShowDialog = false;
+            await CloseEventCallbak.InvokeAsync(true);
+            await GetTaskList();
+
+        }
+        else
+        {
+            _snackbar.Add("Name task failed",Severity.Error);
+        }
+    }
+}
+
