@@ -1,0 +1,76 @@
+﻿@inject IJSRuntime _jsRuntime
+
+
+<div class="d-flex justify-space-between container mt-5">
+    <div class="skill mt-4" style="margin: 0 auto;">
+        <div class="outer">
+            <div class="inner">
+                <div id="accuracy">
+                </div>
+            </div>
+        </div>
+        <svg style="position: absolute!important;" xmlns="http://www.w3.org/2000/svg" version="1.1" width="200px" height="200px">
+            <defs>
+                <linearGradient id="GradientColor">
+                    <stop offset="0%" stop-color="#2037b3" />
+                    <stop offset="100%" stop-color="#80cfe9" />
+                </linearGradient>
+            </defs>
+            <circle id="circle-accuracy" cx="100" cy="100" r="90" stroke-linecap="round" />
+        </svg>
+    </div>
+
+    <div class="skillscore" style="margin: 0 auto;">
+        <div class="outerscore">
+            <div class="innerscore">
+                <div id="score">
+                </div>
+            </div>
+        </div>
+        <svg style="position: absolute!important;" xmlns="http://www.w3.org/2000/svg" version="1.1" width="240px" height="240px">
+            <defs>
+                <linearGradient id="GradientColor">
+                    <stop offset="0%" stop-color="#9B0AE3" />
+                    <stop offset="100%" stop-color="#00DBDE" />
+                </linearGradient>
+            </defs>
+            <circle id="circle-score" cx="120" cy="120" r="110" stroke-linecap="round" />
+        </svg>
+    </div>
+
+
+    <div class="skill mt-4" style="margin: 0 auto;">
+        <div class="outer">
+            <div class="inner">
+                <div id="speed">
+                </div>
+            </div>
+        </div>
+        <svg style="position: absolute!important;" xmlns="http://www.w3.org/2000/svg" version="1.1" width="200px" height="200px">
+            <defs>
+                <linearGradient id="GradientColor">
+                    <stop offset="0%" stop-color="#9B0AE3" />
+                    <stop offset="100%" stop-color="#00DBDE" />
+                </linearGradient>
+            </defs>
+            <circle id="circle-speed" cx="100" cy="100" r="90" stroke-linecap="round" />
+        </svg>
+    </div>
+</div>
+
+@code {
+    // [Parameter]
+    // public int Accuracy { get; set; }
+    // [Parameter]
+    // public int Speed { get; set; }
+    // [Parameter]
+    // public int ScoreValue { get; set; }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await _jsRuntime.InvokeVoidAsync("CreateCircularPercent", "Accuracy", "#accuracy", "#circle-accuracy", 72, "%", 100);
+        await _jsRuntime.InvokeVoidAsync("CreateCircular", "Speed", "#speed", "#circle-speed", 4000, "WPM", 5000);
+        await _jsRuntime.InvokeVoidAsync("CreateCircular", "Score", "#score", "#circle-score", 70000, "", 85000);
+    }
+
+}
+
